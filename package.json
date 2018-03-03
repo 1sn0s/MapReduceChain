@@ -1,0 +1,26 @@
+{
+  "name": "secminplasma",
+  "version": "1.0.0",
+  "description": "Secure Minimal Plasma, an implementation of the Minimal Viable Plasma",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1sn0s/SecMinPlasma.git"
+  },
+  "keywords": [
+    "plasma",
+    "Minimal"
+  ],
+  "author": "shonjs",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/1sn0s/SecMinPlasma/issues"
+  },
+  "homepage": "https://github.com/1sn0s/SecMinPlasma#readme"
+}
