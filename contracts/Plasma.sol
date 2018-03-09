@@ -40,7 +40,7 @@ contract Plasma {
   		_merkleRootHash := mload(add(data, 64))
   		_r := mload(add(data, 96))
   		_s := mload(add(data, 128))
-  		_v := mload(add(data, 1260))
+  		_v := mload(add(data, 160))
   	}
 
   	require(uint256(_blockNumber) == lastBlockNumber + 1);
