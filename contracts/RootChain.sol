@@ -1,10 +1,82 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.5.1;
 
 
 contract Plasma {
   function Plasma() {
     // constructor
   }
+
+  event DepositCreated (
+	  address indexed owner,
+	  uint amount,
+	  uint blockNumber
+  );
+
+  event BlockSubmitted (
+	  uint blockNumber,
+	  bytes32 blockRoot
+  );
+
+  event ExitStarted (
+	  address indexed owner,
+	  uint blockNumber,
+	  uint txIndex,
+	  uint outputIndex,
+	  uint amount
+  );
+
+
+
+	// Structures
+
+  struct PlasmaBlock {
+	  bytes32 root;
+	  uint timestamp;
+  }
+
+  struct PlasmaExit {
+	  address owner;
+	  uint amount;
+	  bool isActive;
+	  bool isBlocked;
+  }
+
+  // Public Variables
+
+  uint constant public CHALLENGE_PERIOD = 100;
+  uint constant public EXIT_BOND = 100;
+
+  // Variables
+  PriorityQueue exitQueue;
+  uint public currentPlasmaBlockNumber;
+  address public operator;
+
+  // Mapping from blockNumber to plasma blocks
+  mapping ( uint => PlasmaBlock) public plasmaBlocks;
+  // Mapping from exitIDs to 
+  mapping ( uint => PlasmaExit) public plasmaExits;
+
+  function deposit() public payable returns (uint blockNumber) {
+
+  }
+
+  function submitBlock(bytes32 _blockRoot) public {
+
+  }
+
+  function startExit(
+
+  ){}
+
+  function challengeExit(
+
+  ){}
+
+  function processExits() public returns (uint processed) {
+
+  }
+
+  
 
   bytes constant PersonalMessagePrefixBytes = "\x19Ethereum Signed Message:\n96";
   uint32 constant blockHeaderLength = 161;
@@ -68,5 +140,9 @@ contract Plasma {
 
   	HeaderSubmitted(uint256(_blockNumber));
   	return true;
+  }
+
+  function deposit() payable external returns (bool success) {
+  	
   }
 }
