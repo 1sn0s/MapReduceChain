@@ -56,8 +56,17 @@ contract Plasma {
   // Mapping from exitIDs to 
   mapping ( uint => PlasmaExit) public plasmaExits;
 
+  /**
+	* @title Make a deposit to the plasma root
+	* @dev Payable function that accepts deposits for root
+	* @return block number of the deposit block
+   */
   function deposit() public payable returns (uint blockNumber) {
-
+	  bytes32 rootHash = keccak256(abi.encodePacked(msg.sender, msg.value));
+	  plasmaBlocks[currentPlasmaBlockNumber] = PlasmaBlock(rootHash, block.timestamp);
+	
+	  emit DepositCreated(msg.sender, msg.value, currentPlasmaBlockNumber);
+	  currentPlasmaBlockNumber = currentPlasmaBlockNumber.add(1);
   }
 
   function submitBlock(bytes32 _blockRoot) public {
