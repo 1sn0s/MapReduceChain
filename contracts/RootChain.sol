@@ -1,5 +1,8 @@
 pragma solidity ^0.5.1;
 
+import "./MerkleProof.sol";
+import "./ECDSA.sol";
+import "./BytesLib.sol";
 
 contract Plasma {
   function Plasma() {
@@ -60,22 +63,59 @@ contract Plasma {
 	* @title Make a deposit to the plasma root
 	* @dev Payable function that accepts deposits for root
 	* @return block number of the deposit block
-   */
+    */
   function deposit() public payable returns (uint blockNumber) {
 	  bytes32 rootHash = keccak256(abi.encodePacked(msg.sender, msg.value));
 	  plasmaBlocks[currentPlasmaBlockNumber] = PlasmaBlock(rootHash, block.timestamp);
-	
+
 	  emit DepositCreated(msg.sender, msg.value, currentPlasmaBlockNumber);
 	  currentPlasmaBlockNumber = currentPlasmaBlockNumber.add(1);
   }
 
+  /**
+  	* @title Submit a block to the plasma root
+	* @dev submit method for child chains to commit blocks
+	* @param _blockRoot The root of the childs block to submit
+	*/
   function submitBlock(bytes32 _blockRoot) public {
+	  plasmaBlock[currentPlasmaBlockNumber] = PlasmaBlock(_blockRoot, block.timestamp);
 
+	  emit BlockSubmitted(currentPlasmaBlockNumber, _blockRoot);
+	  currentPlasmaBlockNumber = currentPlasmaBlockNumber.add(1);
   }
 
+  /**
+  	* @title Exit from the child chain
+	* @dev Allows any user to withdraw funds from the contract by pointing to a transaction output
+	*/
   function startExit(
+	  uint _txoBlockNumber,
+	  uint _txoTxIndex,
+	  uint _txoOutputIndex,
+	  bytes _encodedTx,
+	  bytes _txInclusionProof,
+	  bytes _txSignatures,
+	  bytes _txConfirmationSignatures
+  ) public payable returns (bool sucess)
+  {
+	  bytes32 rootHash = plasmaBlock[_txoBlockNumber].root;
+	  require(MerkleProof.verify(_txInclusionProof, rootHash, _encodedTx) == true,
+	   "Invalid transaction merkle proof");
+	  
+	  var txHash = keccak256(_encodedTx);
+	  var confHash = keccak256(txHash);
+	  bytes inputSig_1 = BytesLib.slice(_txSignatures, 0, 65);
+	  bytes inputSig_2 = BytesLib.slice(_txSignatures, 65, 65);
+	  bytes confirmSig_1 = BytesLib.slice(_txConfirmationSignatures, 0, 65);
+	  bytes confirmSig_2 = BytesLib.slice(_txConfirmationSignatures, 0, 65);
+	  
+	  require(ECDSA.recover(txHash, inputSig_1) == ECDSA.recover(confHash, confirmSig_1),
+	   "First signatures don't match");
+	  require(ECDSA.recover(txHash, inputSig_2) == ECDSA.recover(confHash, confirmSig_2),
+	   "First signatures don't match");
 
-  ){}
+	  emit ExitStarted(msg.sender, _txoBlockNumber, _txoTxIndex, _txoOutputIndex, )
+  }
 
   function challengeExit(
 
