@@ -3,6 +3,7 @@ pragma solidity ^0.5.1;
 import "./MerkleProof.sol";
 import "./ECDSA.sol";
 import "./BytesLib.sol";
+import "./PriorityQueue.sol";
 
 contract Plasma {
   function Plasma() {
@@ -102,6 +103,8 @@ contract Plasma {
 	  require(MerkleProof.verify(_txInclusionProof, rootHash, _encodedTx) == true,
 	   "Invalid transaction merkle proof");
 	  
+	  // Get the details from exiting transaction
+	  var exitingTx = _encodedTx.createExitingTx(_txoOutputIndex);
 	  var txHash = keccak256(_encodedTx);
 	  var confHash = keccak256(txHash);
 	  bytes inputSig_1 = BytesLib.slice(_txSignatures, 0, 65);
@@ -112,9 +115,11 @@ contract Plasma {
 	  require(ECDSA.recover(txHash, inputSig_1) == ECDSA.recover(confHash, confirmSig_1),
 	   "First signatures don't match");
 	  require(ECDSA.recover(txHash, inputSig_2) == ECDSA.recover(confHash, confirmSig_2),
-	   "First signatures don't match");
+	   "second signatures don't match");
 
-	  emit ExitStarted(msg.sender, _txoBlockNumber, _txoTxIndex, _txoOutputIndex, )
+	  exitQueue.insert(plasmaBlock[_txoBlockNumber].timestamp, exitingTx.amount);
+
+	  emit ExitStarted(msg.sender, _txoBlockNumber, _txoTxIndex, _txoOutputIndex, exitingTx.amount);
   }
 
   function challengeExit(
